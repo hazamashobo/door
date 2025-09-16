@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Access Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'MS Gothic', 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #cccccc;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: normal;
+            color: #ffffff;
+            letter-spacing: 0.1em;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            color: #888888;
+        }
+
+        .image-container {
+            columns: 5;
+            column-gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .image-item {
+            break-inside: avoid;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+            background: #222;
+        }
+
+        .image-item:hover {
+            border-color: #555;
+        }
+
+        .image-item.selected {
+            border-color: #ff0000;
+            border-width: 2px;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            aspect-ratio: var(--aspect-ratio);
+            background: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #666;
+            position: relative;
+        }
+
+        .image-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .submit-container {
+            text-align: center;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+        }
+
+        .submit-btn {
+            background: #333;
+            border: 1px solid #555;
+            color: #cccccc;
+            padding: 10px 30px;
+            font-family: 'MS Gothic', 'Courier New', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .submit-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .submit-btn.active:hover {
+            background: #444;
+        }
+
+        .message-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: none;
+        }
+
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1a1a1a;
+            border: 1px solid #555;
+            padding: 30px;
+            font-size: 1rem;
+            text-align: center;
+            z-index: 1001;
+            min-width: 300px;
+        }
+
+        .message-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .message-btn {
+            background: #333;
+            border: 1px solid #555;
+            color: #cccccc;
+            padding: 8px 20px;
+            font-family: 'MS Gothic', 'Courier New', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .message-btn:hover {
+            background: #444;
+        }
+
+        .success {
+            color: #00ff00;
+        }
+
+        .error {
+            color: #ff0000;
+        }
+
+        @media (max-width: 1200px) {
+            .image-container {
+                columns: 4;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .image-container {
+                columns: 3;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .image-container {
+                columns: 2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">CONFIDENTIAL ACCESS VERIFICATION</h1>
+        <p class="subtitle">Select the designated image and proceed to secured area</p>
+    </div>
+
+    <div class="image-container" id="imageContainer">
+        <!-- 画像アイテムは JavaScript で生成 -->
+    </div>
+
+    <div class="submit-container">
+        <button class="submit-btn" id="submitBtn">PROCEED</button>
+    </div>
+
+    <div class="message-overlay" id="messageOverlay">
+        <div class="message-box">
+            <div class="message-title" id="messageTitle"></div>
+            <div id="messageContent"></div>
+            <button class="message-btn" id="messageBtn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // 画像の種類定義（実際の画像URLに置き換え可能）
+        const imageTypes = [
+            { url: '', type: 'door', aspectRatio: 1.2 },
+            { url: '', type: 'other', aspectRatio: 0.8 },
+            { url: '', type: 'other', aspectRatio: 1.5 },
+            { url: '', type: 'other', aspectRatio: 0.9 },
+            { url: '', type: 'other', aspectRatio: 1.3 },
+            { url: '', type: 'other', aspectRatio: 1.1 },
+            { url: '', type: 'other', aspectRatio: 0.7 },
+            { url: '', type: 'other', aspectRatio: 1.4 },
+            { url: '', type: 'other', aspectRatio: 1.0 },
+            { url: '', type: 'other', aspectRatio: 1.6 }
+        ];
+
+        let selectedItem = null;
+        let gameImages = [];
+
+        function generateRandomAspectRatio() {
+            return 0.6 + Math.random() * 1.4; // 0.6から2.0の間
+        }
+
+        function createImageArray() {
+            const images = [];
+            
+            // ドアを1つ追加
+            images.push({
+                type: 'door',
+                aspectRatio: generateRandomAspectRatio(),
+                url: '', // 実際の画像URLをここに設定
+                placeholder: 'DOOR IMAGE'
+            });
+
+            // その他の画像を80-120個追加（ランダム）
+            const totalImages = 80 + Math.floor(Math.random() * 41);
+            
+            for (let i = 1; i < totalImages; i++) {
+                images.push({
+                    type: 'other',
+                    aspectRatio: generateRandomAspectRatio(),
+                    url: '', // 実際の画像URLをここに設定
+                    placeholder: `IMAGE ${i.toString().padStart(3, '0')}`
+                });
+            }
+
+            return shuffleArray(images);
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function initializeGame() {
+            gameImages = createImageArray();
+            const container = document.getElementById('imageContainer');
+            container.innerHTML = '';
+
+            gameImages.forEach((image, index) => {
+                const item = document.createElement('div');
+                item.className = 'image-item';
+                item.dataset.type = image.type;
+                item.dataset.index = index;
+                
+                const placeholder = document.createElement('div');
+                placeholder.className = 'image-placeholder';
+                placeholder.style.setProperty('--aspect-ratio', image.aspectRatio);
+                
+                if (image.url) {
+                    const img = document.createElement('img');
+                    img.src = image.url;
+                    img.alt = image.placeholder;
+                    placeholder.appendChild(img);
+                } else {
+                    placeholder.textContent = image.placeholder;
+                }
+                
+                item.appendChild(placeholder);
+                item.addEventListener('click', selectImage);
+                container.appendChild(item);
+            });
+        }
+
+        function selectImage(e) {
+            if (selectedItem) {
+                selectedItem.classList.remove('selected');
+            }
+
+            selectedItem = e.currentTarget;
+            selectedItem.classList.add('selected');
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.classList.add('active');
+        }
+
+        function submitSelection() {
+            if (!selectedItem) return;
+
+            const overlay = document.getElementById('messageOverlay');
+            const title = document.getElementById('messageTitle');
+            const content = document.getElementById('messageContent');
+            const btn = document.getElementById('messageBtn');
+
+            if (selectedItem.dataset.type === 'door') {
+                title.textContent = 'ACCESS GRANTED';
+                title.className = 'success';
+                content.innerHTML = 'Authentication successful.<br>Redirecting to secured area...';
+                btn.textContent = 'CONTINUE';
+                
+                // 実際の実装では以下を使用してページ遷移
+                setTimeout(() => {
+                    // window.location.href = 'your-secure-page.html';
+                    content.innerHTML = 'Ready to redirect.<br>(In actual implementation, page would redirect here)';
+                }, 2000);
+            } else {
+                title.textContent = 'ACCESS DENIED';
+                title.className = 'error';
+                content.innerHTML = 'Invalid selection.<br>Please try again.';
+                btn.textContent = 'RETRY';
+            }
+
+            overlay.style.display = 'block';
+        }
+
+        function closeMessage() {
+            document.getElementById('messageOverlay').style.display = 'none';
+            
+            if (selectedItem && selectedItem.dataset.type !== 'door') {
+                selectedItem.classList.remove('selected');
+                selectedItem = null;
+                document.getElementById('submitBtn').classList.remove('active');
+            }
+        }
+
+        // イベントリスナー
+        document.getElementById('submitBtn').addEventListener('click', submitSelection);
+        document.getElementById('messageBtn').addEventListener('click', closeMessage);
+        document.getElementById('messageOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('messageOverlay')) {
+                closeMessage();
+            }
+        });
+
+        // ゲーム初期化
+        initializeGame();
+    </script>
+</body>
+</html>

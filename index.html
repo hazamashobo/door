@@ -184,8 +184,8 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="title">ESCAPE FROM THE LIMINAL SPACE</h1>
-        <p class="subtitle">Select and send a photo of the "door"</p>
+        <h1 class="title">ESCAPE FROM THE LIMIANL SPACE1</h1>
+        <p class="subtitle">Select and send the photo of "door"</p>
     </div>
 
     <div class="image-container" id="imageContainer">
@@ -193,7 +193,7 @@
     </div>
 
     <div class="submit-container">
-        <button class="submit-btn" id="submitBtn">SEND</button>
+        <button class="submit-btn" id="submitBtn">send</button>
     </div>
 
     <div class="message-overlay" id="messageOverlay">
@@ -228,6 +228,7 @@
 
         // 画像URL配列を定義（ここに60枚の画像URLを追加してください）
         const imageUrls = [
+           const imageUrls = [
             'gazou/1.jpg',
             'gazou/2.jpg',
             'gazou/3.jpg',
@@ -292,7 +293,10 @@
 
         // ドア画像のURLを設定（60枚とは別に用意）
         const doorImageUrl = 'gazou/door.jpg'; // ドア画像のURLをここに設定してください
-        
+
+        // 正解時の遷移先URL（CONTINUEボタンで飛ぶリンク）
+        const redirectUrl = 'https://https://hazamashobo.github.io/fin/'; // ここに遷移先URLを設定してください
+
         function createImageArray() {
             const images = [];
             
@@ -387,21 +391,24 @@
             const btn = document.getElementById('messageBtn');
 
             if (selectedItem.dataset.type === 'door') {
-                title.textContent = 'CORRECT';
+                title.textContent = 'ACCESS GRANTED';
                 title.className = 'success';
                 content.innerHTML = 'Authentication successful.<br>Redirecting to secured area...';
                 btn.textContent = 'EXIT';
                 
-                // 実際の実装では以下を使用してページ遷移
-                setTimeout(() => {
-                    // window.location.href = 'https://hazamashobo.github.io/fin/';
-                    content.innerHTML = 'Ready to redirect.<br>(In actual implementation, page would redirect here)';
-                }, 2000);
+                // CONTINUEボタンクリック時の動作を設定
+                btn.onclick = function() {
+                    window.location.href = redirectUrl;
+                };
+                
             } else {
-                title.textContent = 'This is not exit';
+                title.textContent = 'ACCESS DENIED';
                 title.className = 'error';
                 content.innerHTML = 'Please try again.';
                 btn.textContent = 'RETRY';
+                
+                // RETRYボタンの動作をリセット
+                btn.onclick = closeMessage;
             }
 
             overlay.style.display = 'block';

@@ -184,8 +184,8 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="title">ESCAPE FROM THE LIMINAL SPACE</h1>
-        <p class="subtitle">Select and send a photo of the "door".</p>
+        <h1 class="title">CONFIDENTIAL ACCESS VERIFICATION</h1>
+        <p class="subtitle">Select the designated image and proceed to secured area</p>
     </div>
 
     <div class="image-container" id="imageContainer">
@@ -226,6 +226,18 @@
             return 0.6 + Math.random() * 1.4; // 0.6から2.0の間
         }
 
+        // 画像URL配列を定義（ここに60枚の画像URLを追加してください）
+        const imageUrls = [
+            'gazou/1.jpg',
+            'gazou/2.jpg',
+            'gazou/3.jpg',
+            'gazou/4.jpg',
+            'gazou/5.jpg',
+        ];
+
+        // ドア画像のURLを設定（60枚とは別に用意）
+        const doorImageUrl = 'gazou/door.jpg'; // ドア画像のURLをここに設定してください
+
         function createImageArray() {
             const images = [];
             
@@ -233,18 +245,26 @@
             images.push({
                 type: 'door',
                 aspectRatio: generateRandomAspectRatio(),
-                url: 'gazou/door.jpg', // 実際の画像URLをここに設定
+                url: doorImageUrl,
                 placeholder: 'DOOR IMAGE'
             });
 
-            // その他の画像を80-120個追加（ランダム）
-            const totalImages = 80 + Math.floor(Math.random() * 41);
+            // 用意した画像URLを使用（最大59枚、残りはランダム生成）
+            const availableUrls = [...imageUrls];
             
-            for (let i = 1; i < totalImages; i++) {
+            for (let i = 1; i < 60; i++) {
+                let imageUrl = '';
+                
+                // 用意した画像URLがまだある場合は使用
+                if (availableUrls.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * availableUrls.length);
+                    imageUrl = availableUrls.splice(randomIndex, 1)[0];
+                }
+                
                 images.push({
                     type: 'other',
                     aspectRatio: generateRandomAspectRatio(),
-                    url: 'gazou/1.jpg', // 実際の画像URLをここに設定
+                    url: imageUrl,
                     placeholder: `IMAGE ${i.toString().padStart(3, '0')}`
                 });
             }

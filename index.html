@@ -184,8 +184,8 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="title">CONFIDENTIAL ACCESS VERIFICATION</h1>
-        <p class="subtitle">Select the designated image and proceed to secured area</p>
+        <h1 class="title">ESCAPE FROM THE LIMINAL SPACE</h1>
+        <p class="subtitle">Select and send a photo of the "door"</p>
     </div>
 
     <div class="image-container" id="imageContainer">
@@ -193,7 +193,7 @@
     </div>
 
     <div class="submit-container">
-        <button class="submit-btn" id="submitBtn">PROCEED</button>
+        <button class="submit-btn" id="submitBtn">SEND</button>
     </div>
 
     <div class="message-overlay" id="messageOverlay">
@@ -292,7 +292,7 @@
 
         // ドア画像のURLを設定（60枚とは別に用意）
         const doorImageUrl = 'gazou/door.jpg'; // ドア画像のURLをここに設定してください
-
+        const redirectUrl = 'https://hazamashobo.github.io/fin/';
         function createImageArray() {
             const images = [];
             
@@ -387,10 +387,10 @@
             const btn = document.getElementById('messageBtn');
 
             if (selectedItem.dataset.type === 'door') {
-                title.textContent = 'ACCESS GRANTED';
+                title.textContent = 'CORRECT';
                 title.className = 'success';
                 content.innerHTML = 'Authentication successful.<br>Redirecting to secured area...';
-                btn.textContent = 'CONTINUE';
+                btn.textContent = 'EXIT';
                 
                 // 実際の実装では以下を使用してページ遷移
                 setTimeout(() => {
@@ -398,9 +398,9 @@
                     content.innerHTML = 'Ready to redirect.<br>(In actual implementation, page would redirect here)';
                 }, 2000);
             } else {
-                title.textContent = 'ACCESS DENIED';
+                title.textContent = 'This is not exit';
                 title.className = 'error';
-                content.innerHTML = 'Invalid selection.<br>Please try again.';
+                content.innerHTML = 'Please try again.';
                 btn.textContent = 'RETRY';
             }
 

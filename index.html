@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: 'MS Gothic', 'Courier New', monospace;
+            font-family: "Hiragino Mincho ProN","MS Mincho",serif;
             background: #1a1a1a;
             color: #cccccc;
             min-height: 100vh;
@@ -184,8 +184,8 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="title">Liminal Spaceからの脱出</h1>
-        <p class="subtitle">ドアの写真を選択してください</p>
+        <h1 class="title">Liminal Space脱出口生成フォーム</h1>
+        <p class="subtitle">ドアの写真を送信し、Liminal spaceからの出口を生成してください</p>
     </div>
 
     <div class="image-container" id="imageContainer">
@@ -193,7 +193,7 @@
     </div>
 
     <div class="submit-container">
-        <button class="submit-btn" id="submitBtn">send</button>
+        <button class="submit-btn" id="submitBtn">送信</button>
     </div>
 
     <div class="message-overlay" id="messageOverlay">
@@ -390,10 +390,10 @@
             const btn = document.getElementById('messageBtn');
 
             if (selectedItem.dataset.type === 'door') {
+                title.className = '成功';
                 title.textContent = 'CORRECT';
-                title.className = 'success';
                 content.innerHTML = '出口を生成します';
-                btn.textContent = '進む';
+                btn.textContent = '桐須を助ける';
                 
                 // CONTINUEボタンクリック時の動作を設定
                 btn.onclick = function() {
@@ -401,9 +401,9 @@
                 };
                 
             } else {
-                title.textContent = 'ERROR';
                 title.className = 'エラー';
-                content.innerHTML = '出口ではありません.';
+                content.innerHTML = 'ERROR';
+                title.textContent = '出口ではありません';
                 btn.textContent = '戻る';
                 
                 // RETRYボタンの動作をリセット

@@ -184,8 +184,8 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="title">ESCAPE FROM THE LIMIANL SPACE2</h1>
-        <p class="subtitle">Select and send the photo of "door"</p>
+        <h1 class="title">Liminal Spaceからの脱出</h1>
+        <p class="subtitle">ドアの写真を選択してください</p>
     </div>
 
     <div class="image-container" id="imageContainer">
@@ -390,10 +390,10 @@
             const btn = document.getElementById('messageBtn');
 
             if (selectedItem.dataset.type === 'door') {
-                title.textContent = 'ACCESS GRANTED';
+                title.textContent = 'CORRECT';
                 title.className = 'success';
-                content.innerHTML = 'Authentication successful.<br>Redirecting to secured area...';
-                btn.textContent = 'EXIT';
+                content.innerHTML = '出口を生成します';
+                btn.textContent = '進む';
                 
                 // CONTINUEボタンクリック時の動作を設定
                 btn.onclick = function() {
@@ -401,10 +401,10 @@
                 };
                 
             } else {
-                title.textContent = 'ACCESS DENIED';
-                title.className = 'error';
-                content.innerHTML = 'Please try again.';
-                btn.textContent = 'RETRY';
+                title.textContent = 'ERROR';
+                title.className = 'エラー';
+                content.innerHTML = '出口ではありません.';
+                btn.textContent = '戻る';
                 
                 // RETRYボタンの動作をリセット
                 btn.onclick = closeMessage;

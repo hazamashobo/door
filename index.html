@@ -4,436 +4,326 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Internal Access Portal</title>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: "Hiragino Mincho ProN","MS Mincho",serif;
-            background: #1a1a1a;
+            background: #000;
             color: #cccccc;
             min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* 背景ノイズ */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                repeating-linear-gradient(
+                    to bottom,
+                    rgba(0,255,255,0.05) 0px,
+                    rgba(0,255,255,0.05) 1px,
+                    rgba(0,0,0,0) 2px
+                );
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* コードスクロール */
+        .code-rain {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            font-family: "Courier New", monospace;
+            font-size: 0.85rem;
+            opacity: 0.06;
+            white-space: pre;
+            color: #00ffff;
+            animation: scrollCode 14s linear infinite;
+        }
+
+        @keyframes scrollCode {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
         }
 
         .header {
             text-align: center;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid rgba(0,255,255,0.1);
             padding-bottom: 20px;
             margin-bottom: 30px;
+            position: relative;
+            z-index: 5;
         }
 
         .title {
-            font-size: 1.5rem;
-            font-weight: normal;
-            color: #ffffff;
-            letter-spacing: 0.1em;
+            font-size: 1.6rem;
+            color: #e6e6e6;
+            letter-spacing: 0.12em;
+            text-shadow: 0 0 10px rgba(0,255,255,0.2);
         }
 
         .subtitle {
+            color: #8fa1a1;
             font-size: 0.9rem;
             margin-top: 10px;
-            color: #888888;
         }
 
         .image-container {
             columns: 5;
             column-gap: 15px;
-            margin-bottom: 30px;
+            z-index: 5;
+            position: relative;
         }
 
         .image-item {
             break-inside: avoid;
             margin-bottom: 15px;
-            border: 1px solid #333;
+            border: 1px solid #223;
             cursor: pointer;
-            transition: border-color 0.2s ease;
-            background: #222;
+            background: #111;
+            transition: border-color .2s;
         }
-
-        .image-item:hover {
-            border-color: #555;
-        }
-
-        .image-item.selected {
-            border-color: #ff0000;
-            border-width: 2px;
-        }
+        .image-item:hover { border-color: #0aa; }
+        .image-item.selected { border-color: #ff0044; border-width: 2px; }
 
         .image-placeholder {
             width: 100%;
             aspect-ratio: var(--aspect-ratio);
-            background: #2a2a2a;
+            background: #1b1b1b;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #666;
-            position: relative;
         }
 
         .image-placeholder img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: block;
         }
 
         .submit-container {
             text-align: center;
-            border-top: 1px solid #333;
+            border-top: 1px solid rgba(0,255,255,0.08);
             padding-top: 20px;
+            margin-top: 20px;
         }
 
         .submit-btn {
-            background: #333;
-            border: 1px solid #555;
-            color: #cccccc;
-            padding: 10px 30px;
-            font-family: 'MS Gothic', 'Courier New', monospace;
-            font-size: 0.9rem;
+            background: rgba(0,30,30,0.8);
+            border: 1px solid rgba(0,255,255,0.2);
+            color: #cde;
+            padding: 12px 40px;
+            font-size: 0.95rem;
+            letter-spacing: 0.15em;
             cursor: pointer;
-            transition: background-color 0.2s ease;
-            opacity: 0.5;
+            opacity: 0.4;
             pointer-events: none;
+            transition: .3s;
         }
-
         .submit-btn.active {
             opacity: 1;
             pointer-events: auto;
         }
-
         .submit-btn.active:hover {
-            background: #444;
+            background: rgba(0,255,255,0.15);
+            box-shadow: 0 0 14px rgba(0,255,255,0.3);
         }
 
         .message-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 900;
             display: none;
         }
-
         .message-box {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #1a1a1a;
-            border: 1px solid #555;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            background: #111;
+            border: 1px solid #044;
             padding: 30px;
-            font-size: 1rem;
             text-align: center;
-            z-index: 1001;
-            min-width: 300px;
-        }
-
-        .message-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
+            z-index: 901;
+            min-width: 280px;
+            color: #cde;
         }
 
         .message-btn {
-            background: #333;
-            border: 1px solid #555;
-            color: #cccccc;
-            padding: 8px 20px;
-            font-family: 'MS Gothic', 'Courier New', monospace;
-            font-size: 0.9rem;
-            cursor: pointer;
             margin-top: 15px;
+            padding: 10px 35px;
+            background: #022;
+            border: 1px solid #0aa;
+            color: #cde;
+            cursor: pointer;
         }
 
-        .message-btn:hover {
-            background: #444;
+        /* ✅大型グリッチ演出 */
+        .glitch {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0,255,255,0.5) 0px,
+                rgba(0,0,0,0.7) 4px
+            );
+            z-index: 9999;
+            animation: glitchFlash .12s steps(2) infinite;
         }
 
-        .success {
-            color: #00ff00;
-        }
-
-        .error {
-            color: #ff0000;
-        }
-
-        @media (max-width: 1200px) {
-            .image-container {
-                columns: 4;
-            }
-        }
-
-        @media (max-width: 900px) {
-            .image-container {
-                columns: 3;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .image-container {
-                columns: 2;
+        @keyframes glitchFlash {
+            50% {
+                opacity: .4;
+                transform: translateX(15px);
             }
         }
     </style>
 </head>
 <body>
+
+    <div class="code-rain" id="codeRain"></div>
+
     <div class="header">
         <h1 class="title">Liminal Space脱出口生成フォーム</h1>
-        <p class="subtitle">ドアの写真を送信し、Liminal spaceからの出口を生成してください</p>
+        <p class="subtitle">ドアの写真を選択してください</p>
     </div>
 
-    <div class="image-container" id="imageContainer">
-        <!-- 画像アイテムは JavaScript で生成 -->
-    </div>
+    <div class="image-container" id="imageContainer"></div>
 
     <div class="submit-container">
         <button class="submit-btn" id="submitBtn">送信</button>
     </div>
 
     <div class="message-overlay" id="messageOverlay">
-        <div class="message-box">
-            <div class="message-title" id="messageTitle"></div>
-            <div id="messageContent"></div>
-            <button class="message-btn" id="messageBtn">OK</button>
+        <div class="message-box" id="messageBox">
+            <div id="messageTitle"></div>
+            <div id="messageContent" style="margin-top:8px;"></div>
+            <button class="message-btn" id="messageBtn"></button>
         </div>
     </div>
 
+    <div class="glitch" id="glitchScreen"></div>
+
     <script>
-        // 画像の種類定義（実際の画像URLに置き換え可能）
-        const imageTypes = [
-            { url: '', type: 'door', aspectRatio: 1.2 },
-            { url: '', type: 'other', aspectRatio: 0.8 },
-            { url: '', type: 'other', aspectRatio: 1.5 },
-            { url: '', type: 'other', aspectRatio: 0.9 },
-            { url: '', type: 'other', aspectRatio: 1.3 },
-            { url: '', type: 'other', aspectRatio: 1.1 },
-            { url: '', type: 'other', aspectRatio: 0.7 },
-            { url: '', type: 'other', aspectRatio: 1.4 },
-            { url: '', type: 'other', aspectRatio: 1.0 },
-            { url: '', type: 'other', aspectRatio: 1.6 }
-        ];
+        /* ==== ランダムコード生成 ==== */
+        const codeArea = document.getElementById("codeRain");
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%$&@";
+        let scrollText = "";
+        for (let y = 0; y < 35; y++) {
+            let line = "";
+            for (let x = 0; x < 80; x++) {
+                line += chars[Math.floor(Math.random() * chars.length)];
+            }
+            scrollText += line + "\n";
+        }
+        codeArea.textContent = scrollText;
+
+        /* ==== 既存ゲーム部分 ==== */
+        const redirectUrl = "https://hazamashobo.github.io/fin/";
+        const imageUrls = Array.from({length:60},(_,i)=>`gazou/${i+1}.jpg`);
+        const doorUrl = "gazou/door.jpg";
 
         let selectedItem = null;
         let gameImages = [];
 
-        function generateRandomAspectRatio() {
-            return 0.6 + Math.random() * 1.4; // 0.6から2.0の間
-        }
+        function randomRatio(){ return 0.6 + Math.random()*1.4 }
 
-        // 画像URL配列を定義（ここに60枚の画像URLを追加してください）
-        const imageUrls = [
-            'gazou/1.jpg',
-            'gazou/2.jpg',
-            'gazou/3.jpg',
-            'gazou/4.jpg',
-            'gazou/5.jpg',
-            'gazou/6.jpg',
-            'gazou/7.jpg',
-            'gazou/8.jpg',
-            'gazou/9.jpg',
-            'gazou/10.jpg',
-            'gazou/11.jpg',
-            'gazou/12.jpg',
-            'gazou/13.jpg',
-            'gazou/14.jpg',
-            'gazou/15.jpg',
-            'gazou/16.jpg',
-            'gazou/17.jpg',
-            'gazou/18.jpg',
-            'gazou/19.jpg',
-            'gazou/20.jpg',
-            'gazou/21.jpg',
-            'gazou/22.jpg',
-            'gazou/23.jpg',
-            'gazou/24.jpg',
-            'gazou/25.jpg',
-            'gazou/26.jpg',
-            'gazou/27.jpg',
-            'gazou/28.jpg',
-            'gazou/29.jpg',
-            'gazou/30.jpg',
-            'gazou/31.jpg',
-            'gazou/32.jpg',
-            'gazou/33.jpg',
-            'gazou/34.jpg',
-            'gazou/35.jpg',
-            'gazou/36.jpg',
-            'gazou/37.jpg',
-            'gazou/38.jpg',
-            'gazou/39.jpg',
-            'gazou/40.jpg',
-            'gazou/41.jpg',
-            'gazou/42.jpg',
-            'gazou/43.jpg',
-            'gazou/44.jpg',
-            'gazou/45.jpg',
-            'gazou/46.jpg',
-            'gazou/47.jpg',
-            'gazou/48.jpg',
-            'gazou/49.jpg',
-            'gazou/50.jpg',
-            'gazou/51.jpg',
-            'gazou/52.jpg',
-            'gazou/53.jpg',
-            'gazou/54.jpg',
-            'gazou/55.jpg',
-            'gazou/56.jpg',
-            'gazou/57.jpg',
-            'gazou/58.jpg',
-            'gazou/59.jpg',
-            'gazou/60.jpg',
-        ];
-
-        // ドア画像のURLを設定（60枚とは別に用意）
-        const doorImageUrl = 'gazou/door.jpg'; // ドア画像のURLをここに設定してください
-
-        // 正解時の遷移先URL（CONTINUEボタンで飛ぶリンク）
-        const redirectUrl = 'https://hazamashobo.github.io/fin/'; // ここに遷移先URLを設定してください
-
-        function createImageArray() {
-            const images = [];
-            
-            // ドアを1つ追加
-            images.push({
-                type: 'door',
-                aspectRatio: generateRandomAspectRatio(),
-                url: doorImageUrl,
-                placeholder: 'DOOR IMAGE'
-            });
-
-            // 用意した画像URLを使用（最大59枚、残りはランダム生成）
-            const availableUrls = [...imageUrls];
-            
-            for (let i = 1; i < 60; i++) {
-                let imageUrl = '';
-                
-                // 用意した画像URLがまだある場合は使用
-                if (availableUrls.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * availableUrls.length);
-                    imageUrl = availableUrls.splice(randomIndex, 1)[0];
-                }
-                
-                images.push({
-                    type: 'other',
-                    aspectRatio: generateRandomAspectRatio(),
-                    url: imageUrl,
-                    placeholder: `IMAGE ${i.toString().padStart(3, '0')}`
-                });
+        function createImages(){
+            const imgs=[{type:'door',url:doorUrl,aspectRatio:randomRatio()}];
+            const rest=[...imageUrls];
+            for(let i=1;i<60;i++){
+                let url = rest.length ? rest.splice(Math.floor(Math.random()*rest.length),1)[0] : "";
+                imgs.push({type:'other',url,aspectRatio:randomRatio()});
             }
-
-            return shuffleArray(images);
+            return shuffle(imgs);
         }
 
-        function shuffleArray(array) {
-            const shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        function shuffle(arr){
+            for(let i=arr.length-1;i>0;i--){
+                const j=Math.floor(Math.random()*(i+1));
+                [arr[i],arr[j]]=[arr[j],arr[i]];
             }
-            return shuffled;
+            return arr;
         }
 
-        function initializeGame() {
-            gameImages = createImageArray();
-            const container = document.getElementById('imageContainer');
-            container.innerHTML = '';
+        function init(){
+            gameImages=createImages();
+            const container=document.getElementById('imageContainer');
+            container.innerHTML='';
+            gameImages.forEach((img,idx)=>{
+                const item=document.createElement('div');
+                item.className='image-item';
+                item.dataset.type=img.type;
+                item.dataset.index=idx;
 
-            gameImages.forEach((image, index) => {
-                const item = document.createElement('div');
-                item.className = 'image-item';
-                item.dataset.type = image.type;
-                item.dataset.index = index;
-                
-                const placeholder = document.createElement('div');
-                placeholder.className = 'image-placeholder';
-                placeholder.style.setProperty('--aspect-ratio', image.aspectRatio);
-                
-                if (image.url) {
-                    const img = document.createElement('img');
-                    img.src = image.url;
-                    img.alt = image.placeholder;
-                    placeholder.appendChild(img);
-                } else {
-                    placeholder.textContent = image.placeholder;
+                const ph=document.createElement('div');
+                ph.className='image-placeholder';
+                ph.style.setProperty('--aspect-ratio',img.aspectRatio);
+
+                if(img.url){
+                    const image=document.createElement('img');
+                    image.src=img.url;
+                    ph.appendChild(image);
+                }else{
+                    ph.textContent=`IMAGE ${idx}`;
                 }
-                
-                item.appendChild(placeholder);
-                item.addEventListener('click', selectImage);
+
+                item.appendChild(ph);
+                item.addEventListener('click',select);
                 container.appendChild(item);
-            });
+            })
         }
 
-        function selectImage(e) {
-            if (selectedItem) {
-                selectedItem.classList.remove('selected');
-            }
-
-            selectedItem = e.currentTarget;
+        function select(e){
+            if(selectedItem) selectedItem.classList.remove('selected');
+            selectedItem=e.currentTarget;
             selectedItem.classList.add('selected');
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.classList.add('active');
+            document.getElementById('submitBtn').classList.add('active');
         }
 
-        function submitSelection() {
-            if (!selectedItem) return;
+        function submit(){
+            if(!selectedItem) return;
+            const overlay=document.getElementById('messageOverlay');
+            const title=document.getElementById('messageTitle');
+            const content=document.getElementById('messageContent');
+            const btn=document.getElementById('messageBtn');
 
-            const overlay = document.getElementById('messageOverlay');
-            const title = document.getElementById('messageTitle');
-            const content = document.getElementById('messageContent');
-            const btn = document.getElementById('messageBtn');
+            overlay.style.display='block';
 
-            if (selectedItem.dataset.type === 'door') {
-                title.className = '成功';
-                title.textContent = 'CORRECT';
-                content.innerHTML = '出口を生成します';
-                btn.textContent = '桐須を助ける';
-                
-                // CONTINUEボタンクリック時の動作を設定
-                btn.onclick = function() {
-                    window.location.href = redirectUrl;
+            if(selectedItem.dataset.type==='door'){
+                title.textContent="CORRECT";
+                content.textContent="出口を生成します";
+                btn.textContent="桐須を助ける";
+                btn.onclick=function(){
+                    startGlitch();
+                    setTimeout(()=>window.location.href=redirectUrl, 1000);
                 };
-                
-            } else {
-                title.className = 'エラー';
-                content.innerHTML = 'ERROR';
-                title.textContent = '出口ではありません';
-                btn.textContent = '戻る';
-                
-                // RETRYボタンの動作をリセット
-                btn.onclick = closeMessage;
-            }
-
-            overlay.style.display = 'block';
-        }
-
-        function closeMessage() {
-            document.getElementById('messageOverlay').style.display = 'none';
-            
-            if (selectedItem && selectedItem.dataset.type !== 'door') {
-                selectedItem.classList.remove('selected');
-                selectedItem = null;
-                document.getElementById('submitBtn').classList.remove('active');
+            }else{
+                title.textContent="ERROR";
+                content.textContent="出口ではありません";
+                btn.textContent="戻る";
+                btn.onclick=()=>overlay.style.display='none';
             }
         }
 
-        // イベントリスナー
-        document.getElementById('submitBtn').addEventListener('click', submitSelection);
-        document.getElementById('messageBtn').addEventListener('click', closeMessage);
-        document.getElementById('messageOverlay').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('messageOverlay')) {
-                closeMessage();
-            }
-        });
+        function startGlitch(){
+            document.getElementById('glitchScreen').style.display="block";
+        }
 
-        // ゲーム初期化
-        initializeGame();
+        document.getElementById('submitBtn').onclick=submit;
+
+        init();
     </script>
+
 </body>
 </html>

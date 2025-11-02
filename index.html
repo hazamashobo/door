@@ -168,24 +168,55 @@
         }
 
         /* ✅大型グリッチ演出 */
-        .glitch {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                to bottom,
-                rgba(0,255,255,0.5) 0px,
-                rgba(0,0,0,0.7) 4px
-            );
-            z-index: 9999;
-            animation: glitchFlash .12s steps(2) infinite;
-        }
+        /* ▼ 壊れたテレビ風グリッチ（グレーモノクロ版） ▼ */
+.glitch {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 9999;
+    pointer-events: none;
+    animation: tvGlitchGrey 0.65s steps(2) forwards;
+    overflow: hidden;
+}
 
-        @keyframes glitchFlash {
-            50% {
-                opacity: .4;
-                transform: translateX(15px);
-            }
+/* ノイズ＋走査線 */
+.glitch::before,
+.glitch::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgba(200,200,200,0.18) 0px,
+            rgba(200,200,200,0.18) 2px,
+            rgba(0,0,0,0.0) 4px
+        );
+    mix-blend-mode: lighten;
+    opacity: .6;
+}
+
+/* 2枚を左右にズラして干渉 */
+.glitch::before {
+    transform: translateX(-6px);
+    opacity: .4;
+}
+.glitch::after {
+    transform: translateX(6px);
+    opacity: .4;
+}
+
+/* 激しい信号乱れ */
+@keyframes tvGlitchGrey {
+    0% { transform: translateX(-15px) skewX(15deg); opacity: .7; }
+    20% { transform: translateX(20px) skewX(-12deg); opacity: 1; }
+    40% { transform: translateX(-8px) skewX(8deg); opacity: .6; }
+    60% { transform: translateX(12px) skewX(-20deg); opacity: .9; }
+    80% { transform: translateX(6px) skewX(5deg); opacity: .8; }
+    100% { transform: translateX(0) skewX(0deg); opacity: 0; }
+}
+
         }
     </style>
 </head>

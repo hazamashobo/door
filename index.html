@@ -332,9 +332,9 @@
             overlay.style.display='block';
 
             if(selectedItem.dataset.type==='door'){
-                title.textContent="CORRECT";
+                title.textContent="アクセスを感知しました";
                 content.textContent="出口を生成します";
-                btn.textContent="はい";
+                btn.textContent="狭間へ送信";
                 btn.onclick=function(){
                     startGlitch();
                     setTimeout(()=>window.location.href=redirectUrl, 1000);

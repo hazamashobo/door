@@ -314,8 +314,7 @@
                 content.textContent = "出口を生成します";
                 btn.textContent = "狭間へ送信";
                 btn.onclick = function(){
-                    startGlitch();
-                    setTimeout(() => window.location.href = redirectUrl, 1000);
+                    window.location.href = redirectUrl;
                 };
             } else {
                 title.textContent = "ERROR";

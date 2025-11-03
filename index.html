@@ -102,6 +102,7 @@
             justify-content: center;
             font-size: 0.75rem;
             color: #666;
+            overflow: hidden;
         }
 
         .image-placeholder img {
@@ -115,6 +116,8 @@
             border-top: 1px solid rgba(0,255,255,0.08);
             padding-top: 20px;
             margin-top: 20px;
+            position: relative;
+            z-index: 5;
         }
 
         .submit-btn {
@@ -165,9 +168,27 @@
             border: 1px solid #0aa;
             color: #cde;
             cursor: pointer;
+            transition: 0.3s;
         }
 
-       
+        .message-btn:hover {
+            background: #044;
+            box-shadow: 0 0 10px rgba(0,255,255,0.3);
+        }
+
+        .glitch-screen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 902;
+            display: none;
+            animation: glitchEffect 0.3s;
+        }
+
+        @keyframes glitchEffect {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.3; }
+        }
     </style>
 </head>
 <body>
@@ -193,7 +214,7 @@
         </div>
     </div>
 
-    <div class="glitch" id="glitchScreen"></div>
+    <div class="glitch-screen" id="glitchScreen"></div>
 
     <script>
         /* ==== ランダムコード生成 ==== */
@@ -209,7 +230,7 @@
         }
         codeArea.textContent = scrollText;
 
-        /* ==== 既存ゲーム部分 ==== */
+        /* ==== ゲーム部分 ==== */
         const redirectUrl = "https://hazamashobo.github.io/fin/";
         const imageUrls = Array.from({length:60},(_,i)=>`gazou/${i+1}.jpg`);
         const doorUrl = "gazou/door.jpg";
@@ -217,87 +238,94 @@
         let selectedItem = null;
         let gameImages = [];
 
-        function randomRatio(){ return 0.6 + Math.random()*1.4 }
+        function randomRatio(){ 
+            return 0.6 + Math.random() * 1.4; 
+        }
 
         function createImages(){
-            const imgs=[{type:'door',url:doorUrl,aspectRatio:randomRatio()}];
-            const rest=[...imageUrls];
-            for(let i=1;i<60;i++){
+            const imgs = [{type:'door', url:doorUrl, aspectRatio:randomRatio()}];
+            const rest = [...imageUrls];
+            for(let i = 1; i < 60; i++){
                 let url = rest.length ? rest.splice(Math.floor(Math.random()*rest.length),1)[0] : "";
-                imgs.push({type:'other',url,aspectRatio:randomRatio()});
+                imgs.push({type:'other', url, aspectRatio:randomRatio()});
             }
             return shuffle(imgs);
         }
 
         function shuffle(arr){
-            for(let i=arr.length-1;i>0;i--){
-                const j=Math.floor(Math.random()*(i+1));
-                [arr[i],arr[j]]=[arr[j],arr[i]];
+            for(let i = arr.length - 1; i > 0; i--){
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
             }
             return arr;
         }
 
         function init(){
-            gameImages=createImages();
-            const container=document.getElementById('imageContainer');
-            container.innerHTML='';
-            gameImages.forEach((img,idx)=>{
-                const item=document.createElement('div');
-                item.className='image-item';
-                item.dataset.type=img.type;
-                item.dataset.index=idx;
+            gameImages = createImages();
+            const container = document.getElementById('imageContainer');
+            container.innerHTML = '';
+            gameImages.forEach((img, idx) => {
+                const item = document.createElement('div');
+                item.className = 'image-item';
+                item.dataset.type = img.type;
+                item.dataset.index = idx;
 
-                const ph=document.createElement('div');
-                ph.className='image-placeholder';
-                ph.style.setProperty('--aspect-ratio',img.aspectRatio);
+                const ph = document.createElement('div');
+                ph.className = 'image-placeholder';
+                ph.style.setProperty('--aspect-ratio', img.aspectRatio);
 
                 if(img.url){
-                    const image=document.createElement('img');
-                    image.src=img.url;
+                    const image = document.createElement('img');
+                    image.src = img.url;
+                    image.alt = `Image ${idx}`;
                     ph.appendChild(image);
-                }else{
-                    ph.textContent=`IMAGE ${idx}`;
+                } else {
+                    ph.textContent = `IMAGE ${idx}`;
                 }
 
                 item.appendChild(ph);
-                item.addEventListener('click',select);
+                item.addEventListener('click', select);
                 container.appendChild(item);
-            })
+            });
         }
 
         function select(e){
             if(selectedItem) selectedItem.classList.remove('selected');
-            selectedItem=e.currentTarget;
+            selectedItem = e.currentTarget;
             selectedItem.classList.add('selected');
             document.getElementById('submitBtn').classList.add('active');
         }
 
+        function startGlitch(){
+            // グリッチなし
+        }
+
         function submit(){
             if(!selectedItem) return;
-            const overlay=document.getElementById('messageOverlay');
-            const title=document.getElementById('messageTitle');
-            const content=document.getElementById('messageContent');
-            const btn=document.getElementById('messageBtn');
+            const overlay = document.getElementById('messageOverlay');
+            const title = document.getElementById('messageTitle');
+            const content = document.getElementById('messageContent');
+            const btn = document.getElementById('messageBtn');
 
-            overlay.style.display='block';
+            overlay.style.display = 'block';
 
-            if(selectedItem.dataset.type==='door'){
-                title.textContent="アクセスを感知しました";
-                content.textContent="出口を生成します";
-                btn.textContent="狭間へ送信";
-                btn.onclick=function(){
+            if(selectedItem.dataset.type === 'door'){
+                title.textContent = "アクセスを感知しました";
+                content.textContent = "出口を生成します";
+                btn.textContent = "狭間へ送信";
+                btn.onclick = function(){
                     startGlitch();
-                    setTimeout(()=>window.location.href=redirectUrl, 1000);
+                    setTimeout(() => window.location.href = redirectUrl, 1000);
                 };
-            }else{
-                title.textContent="ERROR";
-                content.textContent="出口ではありません";
-                btn.textContent="戻る";
-                btn.onclick=()=>overlay.style.display='none';
+            } else {
+                title.textContent = "ERROR";
+                content.textContent = "出口ではありません";
+                btn.textContent = "戻る";
+                btn.onclick = () => overlay.style.display = 'none';
             }
         }
 
-        document.getElementById('submitBtn').onclick=submit;
+        document.getElementById('submitBtn').onclick = submit;
 
         init();
     </script>

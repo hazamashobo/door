@@ -232,7 +232,7 @@
 
         /* ==== ゲーム部分 ==== */
         const redirectUrl = "https://hazamashobo.github.io/fin/";
-        const imageUrls = Array.from({length:60},(_,i)=>`gazou/${i+1}.jpg`);
+        const imageUrls = Array.from({length:70},(_,i)=>`gazou/${i+1}.jpg`);
         const doorUrl = "gazou/door.jpg";
 
         let selectedItem = null;
@@ -245,7 +245,7 @@
         function createImages(){
             const imgs = [{type:'door', url:doorUrl, aspectRatio:randomRatio()}];
             const rest = [...imageUrls];
-            for(let i = 1; i < 60; i++){
+            for(let i = 1; i < 70; i++){
                 let url = rest.length ? rest.splice(Math.floor(Math.random()*rest.length),1)[0] : "";
                 imgs.push({type:'other', url, aspectRatio:randomRatio()});
             }

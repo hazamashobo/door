@@ -243,11 +243,15 @@
         }
 
         function createImages(){
-            const imgs = [{type:'door', url:doorUrl, aspectRatio:randomRatio()}];
-            let rest = shuffle([...imageUrls]);
-            for(let i = 0; i < rest.length; i++){
-                imgs.push({type:'other', url:rest[i], aspectRatio:randomRatio()});
+            const imgs = [];
+            
+            // 全ての画像を配列に追加（70個 + door）
+            for(let i = 0; i <= 70; i++){
+                imgs.push({type:'other', url:`gazou/${i}.jpg`, aspectRatio:randomRatio()});
             }
+            imgs.push({type:'door', url:doorUrl, aspectRatio:randomRatio()});
+            
+            // シャッフル
             return shuffle(imgs);
         }
 

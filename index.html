@@ -244,10 +244,9 @@
 
         function createImages(){
             const imgs = [{type:'door', url:doorUrl, aspectRatio:randomRatio()}];
-            const rest = [...imageUrls];
-            for(let i = 1; i < 56; i++){
-                let url = rest.length ? rest.splice(Math.floor(Math.random()*rest.length),1)[0] : "";
-                imgs.push({type:'other', url, aspectRatio:randomRatio()});
+            let rest = shuffle([...imageUrls]);
+            for(let i = 0; i < rest.length; i++){
+                imgs.push({type:'other', url:rest[i], aspectRatio:randomRatio()});
             }
             return shuffle(imgs);
         }

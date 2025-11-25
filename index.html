@@ -93,6 +93,9 @@
         .image-item:hover { border-color: #0aa; }
         .image-item.selected { border-color: #ff0044; border-width: 2px; }
 
+        /* door画像は固定サイズ */
+
+
         .image-placeholder {
             width: 100%;
             aspect-ratio: var(--aspect-ratio);
@@ -232,7 +235,6 @@
 
         /* ==== ゲーム部分 ==== */
         const redirectUrl = "https://hazamashobo.github.io/fin/";
-        const imageUrls = Array.from({length:71},(_,i)=>`gazou/${i}.jpg`);
         const doorUrl = "gazou/door.jpg";
 
         let selectedItem = null;
@@ -249,7 +251,7 @@
             for(let i = 0; i <= 70; i++){
                 imgs.push({type:'other', url:`gazou/${i}.jpg`, aspectRatio:randomRatio()});
             }
-            imgs.push({type:'door', url:doorUrl, aspectRatio:randomRatio()});
+            imgs.push({type:'door', url:doorUrl, aspectRatio:0.4});
             
             // シャッフル
             return shuffle(imgs);
@@ -267,6 +269,7 @@
             gameImages = createImages();
             const container = document.getElementById('imageContainer');
             container.innerHTML = '';
+            
             gameImages.forEach((img, idx) => {
                 const item = document.createElement('div');
                 item.className = 'image-item';

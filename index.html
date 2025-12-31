@@ -300,8 +300,31 @@
             }
             ph.style.setProperty("--aspect-ratio", aspectRatio);
 
+        images.forEach(img=>{
+            const item=document.createElement("div");
+            item.className="image-item";
+            item.dataset.type=img.type;
+
+            const ph=document.createElement("div");
+            ph.className="image-placeholder";
+            
             const im=document.createElement("img");
             im.src=img.url;
+            
+            // door.jpgは元画像の縦横比を取得
+            if(img.type === 'door') {
+                im.onload = function() {
+                    const ratio = this.naturalWidth / this.naturalHeight;
+                    ph.style.setProperty("--aspect-ratio", ratio);
+                };
+                // フォールバック
+                ph.style.setProperty("--aspect-ratio", 0.4);
+            } else {
+                // 他はランダム比率
+                const aspectRatio = 0.6 + Math.random() * 0.8;
+                ph.style.setProperty("--aspect-ratio", aspectRatio);
+            }
+            
             ph.appendChild(im);
 
             item.appendChild(ph);

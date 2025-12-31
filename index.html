@@ -1,335 +1,327 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EXIT</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXIT</title>
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
 
-        body {
-            font-family: "Hiragino Mincho ProN","MS Mincho",serif;
-            background: #000;
-            color: #cccccc;
-            min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
-        }
+body {
+  font-family:"Hiragino Mincho ProN","MS Mincho",serif;
+  background:#000;
+  color:#ccc;
+  min-height:100vh;
+  padding:20px;
+  overflow-x:hidden;
+}
 
-        /* 背景ノイズ */
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background:
-                repeating-linear-gradient(
-                    to bottom,
-                    rgba(0,255,255,0.05) 0px,
-                    rgba(0,255,255,0.05) 1px,
-                    rgba(0,0,0,0) 2px
-                );
-            opacity: 0.08;
-            pointer-events: none;
-            z-index: 0;
-        }
+/* 背景ノイズ */
+body::before {
+  content:"";
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(0,255,255,.05) 0,
+    rgba(0,255,255,.05) 1px,
+    transparent 2px
+  );
+  opacity:.08;
+  pointer-events:none;
+  z-index:0;
+}
 
-        /* コードスクロール */
-        .code-rain {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 1;
-            font-family: "Courier New", monospace;
-            font-size: 0.85rem;
-            opacity: 0.06;
-            white-space: pre;
-            color: #00ffff;
-            animation: scrollCode 14s linear infinite;
-        }
+/* コードレイン */
+.code-rain {
+  position:fixed;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  font-family:"Courier New", monospace;
+  font-size:.85rem;
+  opacity:.06;
+  white-space:pre;
+  color:#0ff;
+  animation:scrollCode 14s linear infinite;
+}
+@keyframes scrollCode {
+  from { transform:translateY(0); }
+  to { transform:translateY(-100%); }
+}
 
-        @keyframes scrollCode {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-100%); }
-        }
+.header {
+  text-align:center;
+  margin-bottom:30px;
+  position:relative;
+  z-index:5;
+}
+.title {
+  font-size:1.6rem;
+  letter-spacing:.12em;
+}
+.subtitle {
+  font-size:.9rem;
+  color:#8fa1a1;
+  margin-top:8px;
+}
 
-        .header {
-            text-align: center;
-            border-bottom: 1px solid rgba(0,255,255,0.1);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-            position: relative;
-            z-index: 5;
-        }
+/* 画像一覧 */
+.image-container {
+  columns:5;
+  column-gap:15px;
+  position:relative;
+  z-index:5;
+}
+.image-item {
+  break-inside:avoid;
+  margin-bottom:15px;
+  border:1px solid #223;
+  background:#111;
+  cursor:pointer;
+  transition:.2s;
+}
+.image-item:hover { border-color:#0aa; }
+.image-item.selected {
+  border:2px solid #ff0044;
+}
 
-        .title {
-            font-size: 1.6rem;
-            color: #e6e6e6;
-            letter-spacing: 0.12em;
-            text-shadow: 0 0 10px rgba(0,255,255,0.2);
-        }
+.image-placeholder {
+  width:100%;
+  aspect-ratio:var(--aspect-ratio);
+  overflow:hidden;
+}
+.image-placeholder img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
 
-        .subtitle {
-            color: #8fa1a1;
-            font-size: 0.9rem;
-            margin-top: 10px;
-        }
+/* 送信 */
+.submit-container {
+  text-align:center;
+  margin-top:25px;
+  position:relative;
+  z-index:5;
+}
+.submit-btn {
+  padding:12px 40px;
+  letter-spacing:.15em;
+  background:#022;
+  border:1px solid #0aa;
+  color:#cde;
+  opacity:.4;
+  pointer-events:none;
+}
+.submit-btn.active {
+  opacity:1;
+  pointer-events:auto;
+}
 
-        .image-container {
-            columns: 5;
-            column-gap: 15px;
-            z-index: 5;
-            position: relative;
-        }
-
-        .image-item {
-            break-inside: avoid;
-            margin-bottom: 15px;
-            border: 1px solid #223;
-            cursor: pointer;
-            background: #111;
-            transition: border-color .2s;
-        }
-        .image-item:hover { border-color: #0aa; }
-        .image-item.selected { border-color: #ff0044; border-width: 2px; }
-
-        /* door画像は固定サイズ */
-
-
-        .image-placeholder {
-            width: 100%;
-            aspect-ratio: var(--aspect-ratio);
-            background: #1b1b1b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            color: #666;
-            overflow: hidden;
-        }
-
-        .image-placeholder img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .submit-container {
-            text-align: center;
-            border-top: 1px solid rgba(0,255,255,0.08);
-            padding-top: 20px;
-            margin-top: 20px;
-            position: relative;
-            z-index: 5;
-        }
-
-        .submit-btn {
-            background: rgba(0,30,30,0.8);
-            border: 1px solid rgba(0,255,255,0.2);
-            color: #cde;
-            padding: 12px 40px;
-            font-size: 0.95rem;
-            letter-spacing: 0.15em;
-            cursor: pointer;
-            opacity: 0.4;
-            pointer-events: none;
-            transition: .3s;
-        }
-        .submit-btn.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .submit-btn.active:hover {
-            background: rgba(0,255,255,0.15);
-            box-shadow: 0 0 14px rgba(0,255,255,0.3);
-        }
-
-        .message-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 900;
-            display: none;
-        }
-        .message-box {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%,-50%);
-            background: #111;
-            border: 1px solid #044;
-            padding: 30px;
-            text-align: center;
-            z-index: 901;
-            min-width: 280px;
-            color: #cde;
-        }
-
-        .message-btn {
-            margin-top: 15px;
-            padding: 10px 35px;
-            background: #022;
-            border: 1px solid #0aa;
-            color: #cde;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .message-btn:hover {
-            background: #044;
-            box-shadow: 0 0 10px rgba(0,255,255,0.3);
-        }
-
-        .glitch-screen {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 902;
-            display: none;
-            animation: glitchEffect 0.3s;
-        }
-
-        @keyframes glitchEffect {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 0.3; }
-        }
-    </style>
+/* モーダル */
+.overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  z-index:900;
+}
+.modal {
+  position:fixed;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  background:#111;
+  border:1px solid #044;
+  padding:20px;
+  max-width:90vw;
+  z-index:901;
+}
+.modal img {
+  max-width:80vw;
+  max-height:70vh;
+  display:block;
+}
+.caption {
+  margin-top:10px;
+  font-size:.85rem;
+}
+.modal button {
+  margin-top:12px;
+  padding:8px 30px;
+  background:#022;
+  border:1px solid #0aa;
+  color:#cde;
+  cursor:pointer;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="code-rain" id="codeRain"></div>
+<div class="code-rain" id="codeRain"></div>
 
-    <div class="header">
-        <h1 class="title">Liminal Space脱出口生成フォーム</h1>
-        <p class="subtitle">線遠近法が使われている作品を選択してください</p>
-    </div>
+<div class="header">
+  <h1 class="title">Liminal Space脱出口生成フォーム</h1>
+  <p class="subtitle">線遠近法が使われている作品を選択してください</p>
+</div>
 
-    <div class="image-container" id="imageContainer"></div>
+<div class="image-container" id="imageContainer"></div>
 
-    <div class="submit-container">
-        <button class="submit-btn" id="submitBtn">送信</button>
-    </div>
+<div class="submit-container">
+  <button class="submit-btn" id="submitBtn">送信</button>
+</div>
 
-    <div class="message-overlay" id="messageOverlay">
-        <div class="message-box" id="messageBox">
-            <div id="messageTitle"></div>
-            <div id="messageContent" style="margin-top:8px;"></div>
-            <button class="message-btn" id="messageBtn"></button>
-        </div>
-    </div>
+<!-- 拡大表示 -->
+<div class="overlay" id="viewer">
+  <div class="modal">
+    <img id="viewerImg">
+    <div class="caption" id="viewerCap"></div>
+    <button onclick="closeViewer()">閉じる</button>
+  </div>
+</div>
 
-    <div class="glitch-screen" id="glitchScreen"></div>
+<script>
+/* コードレイン生成 */
+const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+let text="";
+for(let y=0;y<35;y++){
+  let line="";
+  for(let x=0;x<80;x++){
+    line+=chars[Math.floor(Math.random()*chars.length)];
+  }
+  text+=line+"\n";
+}
+document.getElementById("codeRain").textContent=text;
 
-    <script>
-        /* ==== ランダムコード生成 ==== */
-        const codeArea = document.getElementById("codeRain");
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%$&@";
-        let scrollText = "";
-        for (let y = 0; y < 35; y++) {
-            let line = "";
-            for (let x = 0; x < 80; x++) {
-                line += chars[Math.floor(Math.random() * chars.length)];
-            }
-            scrollText += line + "\n";
-        }
-        codeArea.textContent = scrollText;
+/* ==== 画像＋キャプション定義 ==== */
+const images = [
+  { type:'other', url:'gazou/1.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/2.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/3.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/4.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/5.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/6.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/7.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/8.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/9.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/10.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/11.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/12.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/13.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/14.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/15.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/16.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/17.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/18.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/19.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/20.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/21.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/22.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/23.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/24.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/25.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/26.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/27.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/28.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/29.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/30.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/31.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/32.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/33.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/34.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/35.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/36.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/37.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/38.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/39.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/40.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/41.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/42.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/43.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/44.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/45.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/46.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/47.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/48.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/49.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/50.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/51.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/52.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/53.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/54.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/55.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/56.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/57.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/58.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/59.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/60.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/61.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/62.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/63.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/64.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/65.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/66.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/67.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/68.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'other', url:'gazou/69.jpg',  caption:'この階段は、上にも下にも続いていない。' },
+  { type:'other', url:'gazou/70.jpg',  caption:'誰もいないはずの廊下に、足音だけが残っている。' },
+  { type:'other', url:'gazou/71.jpg',  caption:'使われなくなった案内板が、まだ誰かを待っている。' },
+  { type:'door',  url:'gazou/door.jpg', caption:'出口として観測された唯一の構造。' }
+];
 
-        /* ==== ゲーム部分 ==== */
-        const redirectUrl = "https://hazamashobo.github.io/fin/";
-        const doorUrl = "gazou/door.jpg";
+/* シャッフル（captionは保持） */
+images.sort(()=>Math.random()-.5);
 
-        let selectedItem = null;
-        let gameImages = [];
+const container=document.getElementById("imageContainer");
+let selected=null;
 
-        function randomRatio(){ 
-            return 0.6 + Math.random() * 1.4; 
-        }
+images.forEach(img=>{
+  const item=document.createElement("div");
+  item.className="image-item";
+  item.dataset.type=img.type;
 
-        function createImages(){
-            const imgs = [];
-            
-            // 全ての画像を配列に追加（70個 + door）
-            for(let i = 0; i <= 70; i++){
-                imgs.push({type:'other', url:`gazou/${i}.jpg`, aspectRatio:randomRatio()});
-            }
-            imgs.push({type:'door', url:doorUrl, aspectRatio:0.7});
-            
-            // シャッフル
-            return shuffle(imgs);
-        }
+  const ph=document.createElement("div");
+  ph.className="image-placeholder";
+  ph.style.setProperty("--aspect-ratio",0.8);
 
-        function shuffle(arr){
-            for(let i = arr.length - 1; i > 0; i--){
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
+  const im=document.createElement("img");
+  im.src=img.url;
+  ph.appendChild(im);
 
-        function init(){
-            gameImages = createImages();
-            const container = document.getElementById('imageContainer');
-            container.innerHTML = '';
-            
-            gameImages.forEach((img, idx) => {
-                const item = document.createElement('div');
-                item.className = 'image-item';
-                item.dataset.type = img.type;
-                item.dataset.index = idx;
+  item.appendChild(ph);
 
-                const ph = document.createElement('div');
-                ph.className = 'image-placeholder';
-                ph.style.setProperty('--aspect-ratio', img.aspectRatio);
+  item.onclick=()=>{
+    if(selected) selected.classList.remove("selected");
+    selected=item;
+    item.classList.add("selected");
+    document.getElementById("submitBtn").classList.add("active");
+    openViewer(img);
+  };
 
-                if(img.url){
-                    const image = document.createElement('img');
-                    image.src = img.url;
-                    image.alt = `Image ${idx}`;
-                    ph.appendChild(image);
-                } else {
-                    ph.textContent = `IMAGE ${idx}`;
-                }
+  container.appendChild(item);
+});
 
-                item.appendChild(ph);
-                item.addEventListener('click', select);
-                container.appendChild(item);
-            });
-        }
+/* 拡大表示 */
+function openViewer(img){
+  document.getElementById("viewerImg").src=img.url;
+  document.getElementById("viewerCap").textContent=img.caption;
+  document.getElementById("viewer").style.display="block";
+}
+function closeViewer(){
+  document.getElementById("viewer").style.display="none";
+}
 
-        function select(e){
-            if(selectedItem) selectedItem.classList.remove('selected');
-            selectedItem = e.currentTarget;
-            selectedItem.classList.add('selected');
-            document.getElementById('submitBtn').classList.add('active');
-        }
-
-        function submit(){
-            if(!selectedItem) return;
-            const overlay = document.getElementById('messageOverlay');
-            const title = document.getElementById('messageTitle');
-            const content = document.getElementById('messageContent');
-            const btn = document.getElementById('messageBtn');
-
-            overlay.style.display = 'block';
-
-            if(selectedItem.dataset.type === 'door'){
-                title.textContent = "アクセスを感知しました";
-                content.textContent = "出口を生成します";
-                btn.textContent = "狭間へ送信";
-                btn.onclick = function(){
-                    window.location.href = redirectUrl;
-                };
-            } else {
-                title.textContent = "ERROR";
-                content.textContent = "出口ではありません";
-                btn.textContent = "戻る";
-                btn.onclick = () => overlay.style.display = 'none';
-            }
-        }
-
-        document.getElementById('submitBtn').onclick = submit;
-
-        init();
-    </script>
+/* 送信 */
+document.getElementById("submitBtn").onclick=()=>{
+  if(!selected) return;
+  if(selected.dataset.type==="door"){
+    location.href="https://hazamashobo.github.io/fin/";
+  } else {
+    alert("出口ではありません");
+  }
+};
+</script>
 
 </body>
 </html>

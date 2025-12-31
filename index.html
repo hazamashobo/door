@@ -99,6 +99,10 @@
             object-fit: cover;
         }
 
+        .image-item[data-type="door"] .image-placeholder img {
+            object-fit: contain;
+        }
+
         /* 送信 */
         .submit-container {
             text-align: center;
@@ -276,7 +280,7 @@
             { type:'door',  url:'gazou/door.jpg', caption:'フィンセント・ファン・ゴッホ《Corridor in the Asylum》1889年' }
         ];
 
-        /* シャッフル（captionは保持） */
+        /* シャッフル */
         images.sort(()=>Math.random()-.5);
 
         const container=document.getElementById("imageContainer");
@@ -290,24 +294,16 @@
             const ph=document.createElement("div");
             ph.className="image-placeholder";
             
-            // door.jpgは縦長（0.4）、他はランダム
+            // door.jpgは元画像の縦横比を取得、他はランダム
             let aspectRatio;
             if(img.type === 'door') {
-                aspectRatio = 0.4;
+                aspectRatio = 0.4; // フォールバック
             } else {
                 // 0.6～1.4のランダム比率
                 aspectRatio = 0.6 + Math.random() * 0.8;
             }
             ph.style.setProperty("--aspect-ratio", aspectRatio);
 
-        images.forEach(img=>{
-            const item=document.createElement("div");
-            item.className="image-item";
-            item.dataset.type=img.type;
-
-            const ph=document.createElement("div");
-            ph.className="image-placeholder";
-            
             const im=document.createElement("img");
             im.src=img.url;
             
@@ -317,16 +313,9 @@
                     const ratio = this.naturalWidth / this.naturalHeight;
                     ph.style.setProperty("--aspect-ratio", ratio);
                 };
-                // フォールバック
-                ph.style.setProperty("--aspect-ratio", 0.4);
-            } else {
-                // 他はランダム比率
-                const aspectRatio = 0.6 + Math.random() * 0.8;
-                ph.style.setProperty("--aspect-ratio", aspectRatio);
             }
             
             ph.appendChild(im);
-
             item.appendChild(ph);
 
             item.onclick=()=>{
